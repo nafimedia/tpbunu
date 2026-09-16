@@ -13,7 +13,7 @@ module.exports = {
       listen_timeout: 10000,
       env_production: {
         NODE_ENV: "production",
-        PORT: 3000,
+        PORT: process.env.PORT || 3005,
       },
     },
   ],

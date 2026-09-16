@@ -66,7 +66,7 @@ LANGKAH 4: PENGATURAN FILE ENVIRONMENT (.ENV) BACKEND
 3. Klik 2x pada file ".env" tersebut untuk mengedit isinya:
 
    NODE_ENV=production
-   PORT=3000
+   PORT=3005
    DATABASE_URL="mysql://db_tpb:MASUKKAN_PASSWORD_DB_ANDA@localhost:3306/db_tpb"
    JWT_ACCESS_SECRET=ganti_dengan_teks_acak_panjang_minimal_32_karakter
    JWT_ACCESS_TTL_SECONDS=900
@@ -77,6 +77,9 @@ LANGKAH 4: PENGATURAN FILE ENVIRONMENT (.ENV) BACKEND
    MEDIA_DIR=uploads
    MEDIA_MAX_MB=10
    TRUST_PROXY=true
+
+   (Catatan penting: Port menggunakan 3005 karena port 3000 di server sudah
+    digunakan oleh aplikasi lain 'KARTANING').
 
 4. Klik "Save" untuk menyimpan perubahan file .env.
 
@@ -100,34 +103,51 @@ Buka menu "Terminal" di aaPanel, lalu jalankan perintah di bawah ini satu per sa
 
 
 ================================================================================
-LANGKAH 6: MENJALANKAN BACKEND API DENGAN PM2
+LANGKAH 6: MENJALANKAN BACKEND API
 ================================================================================
-Masih di Terminal yang sama, jalankan backend API agar berjalan terus di latar belakang:
-
+PILIHAN A: MENGGUNAKAN PM2 (Paling Dianjurkan & Praktis)
+-------------------------------------------------------
+Di Terminal aaPanel:
 1. Jalankan aplikasi menggunakan PM2:
-   pm2 start ecosystem.config.cjs --env production
+   PORT=3005 pm2 start ecosystem.config.cjs --env production
 
 2. Simpan daftar proses agar otomatis hidup saat VPS reboot/restart:
    pm2 save
    pm2 startup
 
 3. Verifikasi apakah backend sudah hidup dan database terhubung:
-   curl http://127.0.0.1:3000/v1/health
+   curl http://127.0.0.1:3005/v1/health
 
    (Jika berhasil, server akan membalas: {"ok":true,"database":"up"})
+
+
+PILIHAN B: TANPA PM2 (MENGGUNAKAN FITUR 'NODE PROJECT' DI AAPANEL)
+------------------------------------------------------------------
+Jika Anda ingin tanpa terminal PM2 dan lewat menu antarmuka (GUI) aaPanel:
+1. Di menu kiri aaPanel, klik "Website" -> pilih tab "Node project" di atas.
+2. Klik tombol "Add Node project":
+   - Project Name      : tpb-api
+   - Run Path          : /www/wwwroot/tpb-website
+   - Start Command     : node apps/api/dist/main.js
+   - Run User          : www (atau root)
+   - Port              : 3005
+   - Node.js version   : v22 atau v24
+3. Klik "Submit".
+4. Verifikasi di terminal:
+   curl http://127.0.0.1:3005/v1/health
 
 
 ================================================================================
 LANGKAH 7: MENAMBAHKAN WEBSITE & PENGATURAN NGINX
 ================================================================================
-1. Di menu kiri aaPanel, klik "Website" -> klik "Add site".
+1. Di menu kiri aaPanel, klik "Website" -> klik "Add site" (tab PHP/General).
 2. Isi formulir:
-   - Domain Name   : domainanda.com (atau subdomain, misal tpb.domainanda.com)
+   - Domain Name   : tpb.unupurwokerto.ac.id (atau domain Anda)
    - Description   : TPB Website
    - Root directory: Arahkan ke:
                      /www/wwwroot/tpb-website/apps/web/dist
    - Database      : Pilih "No" (karena sudah dibuat di langkah 3)
-   - PHP Version   : Static (atau Pure static)
+   - PHP Version   : Pure static (atau Static)
 3. Klik "Submit".
 4. Pada daftar website, klik NAMA DOMAIN Anda tadi untuk membuka panel konfigurasinya:
 5. Klik tab "Config" (Konfigurasi Nginx):
@@ -139,7 +159,7 @@ LANGKAH 7: MENAMBAHKAN WEBSITE & PENGATURAN NGINX
    }
 
    location /v1/ {
-       proxy_pass http://127.0.0.1:3000;
+       proxy_pass http://127.0.0.1:3005;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -147,7 +167,7 @@ LANGKAH 7: MENAMBAHKAN WEBSITE & PENGATURAN NGINX
    }
 
    location /media/ {
-       proxy_pass http://127.0.0.1:3000;
+       proxy_pass http://127.0.0.1:3005;
        proxy_set_header Host $host;
    }
 
