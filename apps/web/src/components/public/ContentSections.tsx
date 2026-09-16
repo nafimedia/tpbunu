@@ -211,7 +211,10 @@ export function Footer({ footer }: { footer: SiteContent["footer"] }) {
                 </a>
               </li>
             ))}
-            <li className="text-white/60 text-xs mt-4 pt-2 border-t border-white/10">{footer.copyright}</li>
+            <li className="text-white/60 text-xs mt-4 pt-2 border-t border-white/10 flex items-center justify-between">
+              <span>{footer.copyright}</span>
+              <a href="#admin" className="text-white/30 hover:text-white/80 transition text-[11px]" title="Panel Admin">Admin</a>
+            </li>
           </ul>
         </div>
       </div>

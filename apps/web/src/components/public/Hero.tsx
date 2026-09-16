@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Block, NavItemInput, SiteContent } from "@tpb/contracts";
 import { Crest } from "./ui";
-import { SearchButton } from "./Search";
 import { DriveImage } from "../DriveImage";
 import { imageSrcSet } from "../../lib/drive";
 import { navigate } from "../../lib/router";
@@ -17,16 +16,16 @@ function handleInternal(href: string) {
 export function Header({
   brand,
   navigation,
-  blocks,
-  slug,
-  onAdmin,
+  blocks: _blocks,
+  slug: _slug,
+  onAdmin: _onAdmin,
   onDaftar,
 }: {
   brand: SiteContent["brand"];
   navigation: NavItemInput[];
-  blocks: Block[];
-  slug: string;
-  onAdmin: () => void;
+  blocks?: Block[];
+  slug?: string;
+  onAdmin?: () => void;
   onDaftar?: () => void;
 }) {
   const [scrolled, setScrolled] = useState(false);
@@ -107,21 +106,16 @@ export function Header({
                 ) : null}
               </div>
             ))}
-            <div className="ml-1.5 flex items-center gap-2">
-              <SearchButton blocks={blocks} navigation={navigation} slug={slug} />
-              {onDaftar && (
-                <button onClick={onDaftar} className="rounded-full bg-gold px-4 py-2 text-[12px] font-extrabold text-midnight transition hover:bg-gold-light active:scale-95 shadow-sm">
+            {onDaftar && (
+              <div className="ml-2 flex items-center">
+                <button onClick={onDaftar} className="rounded-full bg-gold px-4 py-2 text-[12px] font-extrabold text-midnight transition hover:bg-gold-light active:scale-95 shadow-sm whitespace-nowrap">
                   Daftar PMB
                 </button>
-              )}
-              <button onClick={onAdmin} title="Panel Admin" className="rounded-full border border-white/20 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-white/70 transition hover:bg-white/15 hover:text-white">
-                Admin
-              </button>
-            </div>
+              </div>
+            )}
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 xl:hidden">
-            <SearchButton blocks={blocks} navigation={navigation} slug={slug} compact />
             {onDaftar && (
               <button onClick={onDaftar} className="rounded-full bg-gold px-3 py-1.5 text-[11px] font-extrabold text-midnight transition hover:bg-gold-light active:scale-95 shadow-sm">
                 PMB
@@ -148,9 +142,6 @@ export function Header({
                 Pendaftaran PMB
               </button>
             )}
-            <button onClick={() => { setMobile(false); onAdmin(); }} className="mt-2 w-full rounded-xl border border-white/15 bg-white/5 py-2 text-xs font-semibold text-white/70 hover:bg-white/10">
-              Panel Admin
-            </button>
           </div>
         )}
       </div>

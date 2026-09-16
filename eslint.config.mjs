@@ -32,5 +32,9 @@ export default tseslint.config(
   {
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     languageOptions: { globals: { ...globals.node } },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "no-empty": ["error", { allowEmptyCatch: true }],
+    },
   },
 );
