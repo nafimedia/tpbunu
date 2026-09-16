@@ -1,0 +1,185 @@
+================================================================================
+           PANDUAN LENGKAP DEPLOY TPB WEBSITE DI AAPANEL (VPS)
+================================================================================
+
+Panduan ini disusun langkah demi langkah untuk mendeploy proyek TPB Website
+ke server VPS yang menggunakan kontrol panel aaPanel.
+
+--------------------------------------------------------------------------------
+BERKAS YANG DIGUNAKAN:
+--------------------------------------------------------------------------------
+1. tpb-deploy.zip     : Arsip proyek bersih (~1.9 MB) siap upload ke server.
+2. db_tpb_export.sql  : Backup database MySQL lengkap dari Laragon komputer Anda.
+                        (Berkas ini sudah ada di dalam zip dan di folder proyek).
+
+================================================================================
+LANGKAH 1: PERSIAPAN DI AAPANEL
+================================================================================
+1. Buka dashboard aaPanel Anda di browser.
+2. Masuk ke menu "App Store" di sebelah kiri, pastikan komponen ini terpasang:
+   - Nginx (versi 1.22/1.24 atau yang terbaru)
+   - MySQL (versi 8.0)
+   - Node.js Version Manager / PM2 Manager
+3. Buka menu "Terminal" di aaPanel (atau SSH ke VPS via PuTTY), pastikan Node.js
+   aktif versi 22 dan pasang pnpm:
+   
+   npm install -g pnpm@9
+   node -v
+   pnpm -v
+
+   (Pastikan output node minimal v22.x dan pnpm v9.x)
+
+
+================================================================================
+LANGKAH 2: UPLOAD & EKSTRAK BERKAS PROYEK
+================================================================================
+1. Di menu kiri aaPanel, klik "Files".
+2. Buka folder: /www/wwwroot
+3. Klik tombol "Upload" di menu atas, pilih berkas "tpb-deploy.zip" dari laptop Anda.
+4. Setelah proses upload selesai, klik kanan berkas "tpb-deploy.zip" lalu pilih "Unzip".
+5. Ekstrak ke folder tujuan:
+   /www/wwwroot/tpb-website
+
+
+================================================================================
+LANGKAH 3: MEMBUAT & MENGIMPOR DATABASE MYSQL
+================================================================================
+1. Di menu kiri aaPanel, klik "Databases".
+2. Klik tombol "Add database":
+   - DB Name  : tpb
+   - Username : tpb
+   - Password : (buat password yang kuat, lalu CATAT/SIMPAN password ini)
+   - Character: utf8mb4
+3. Klik "Submit".
+4. Pada baris database "tpb" yang baru dibuat, klik tombol "Import".
+5. Klik "Upload from local" (atau "Import from server file").
+6. Pilih berkas "db_tpb_export.sql" (terletak di /www/wwwroot/tpb-website/db_tpb_export.sql).
+7. Klik "Import" dan tunggu sampai sukses mengimpor semua tabel.
+
+
+================================================================================
+LANGKAH 4: PENGATURAN FILE ENVIRONMENT (.ENV) BACKEND
+================================================================================
+1. Di aaPanel, masuk ke menu "Files" -> buka folder:
+   /www/wwwroot/tpb-website/apps/api
+2. Salin atau duplikat file ".env.example" menjadi ".env".
+3. Klik 2x pada file ".env" tersebut untuk mengedit isinya:
+
+   NODE_ENV=production
+   PORT=3000
+   DATABASE_URL="mysql://tpb:MASUKKAN_PASSWORD_DB_ANDA@localhost:3306/tpb"
+   JWT_ACCESS_SECRET=ganti_dengan_teks_acak_panjang_minimal_32_karakter
+   JWT_ACCESS_TTL_SECONDS=900
+   JWT_REFRESH_TTL_DAYS=30
+   COOKIE_SECURE=true
+   COOKIE_NAME=tpb_refresh
+   COOKIE_DOMAIN=
+   MEDIA_DIR=uploads
+   MEDIA_MAX_MB=10
+   TRUST_PROXY=true
+
+4. Klik "Save" untuk menyimpan perubahan file .env.
+
+
+================================================================================
+LANGKAH 5: INSTALL DEPENDENSI & BUILD (TERMINAL AAPANEL)
+================================================================================
+Buka menu "Terminal" di aaPanel, lalu jalankan perintah di bawah ini satu per satu:
+
+1. Pindah ke direktori proyek:
+   cd /www/wwwroot/tpb-website
+
+2. Pasang dependensi Linux secara bersih:
+   pnpm install
+
+3. Generate Prisma client untuk database:
+   pnpm prisma:generate
+
+4. Build seluruh paket (Web & API) untuk produksi:
+   pnpm build
+
+
+================================================================================
+LANGKAH 6: MENJALANKAN BACKEND API DENGAN PM2
+================================================================================
+Masih di Terminal yang sama, jalankan backend API agar berjalan terus di latar belakang:
+
+1. Jalankan aplikasi menggunakan PM2:
+   pm2 start ecosystem.config.cjs --env production
+
+2. Simpan daftar proses agar otomatis hidup saat VPS reboot/restart:
+   pm2 save
+   pm2 startup
+
+3. Verifikasi apakah backend sudah hidup dan database terhubung:
+   curl http://127.0.0.1:3000/v1/health
+
+   (Jika berhasil, server akan membalas: {"ok":true,"database":"up"})
+
+
+================================================================================
+LANGKAH 7: MENAMBAHKAN WEBSITE & PENGATURAN NGINX
+================================================================================
+1. Di menu kiri aaPanel, klik "Website" -> klik "Add site".
+2. Isi formulir:
+   - Domain Name   : domainanda.com (atau subdomain, misal tpb.domainanda.com)
+   - Description   : TPB Website
+   - Root directory: Arahkan ke:
+                     /www/wwwroot/tpb-website/apps/web/dist
+   - Database      : Pilih "No" (karena sudah dibuat di langkah 3)
+   - PHP Version   : Static (atau Pure static)
+3. Klik "Submit".
+4. Pada daftar website, klik NAMA DOMAIN Anda tadi untuk membuka panel konfigurasinya:
+5. Klik tab "Config" (Konfigurasi Nginx):
+   Cari blok `server { ... }` dan pastikan/sesuaikan bagian routing di dalamnya:
+
+   location / {
+       root /www/wwwroot/tpb-website/apps/web/dist;
+       try_files $uri $uri/ /index.html;
+   }
+
+   location /v1/ {
+       proxy_pass http://127.0.0.1:3000;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto $scheme;
+   }
+
+   location /media/ {
+       proxy_pass http://127.0.0.1:3000;
+       proxy_set_header Host $host;
+   }
+
+6. Klik "Save" lalu restart/reload Nginx.
+
+
+================================================================================
+LANGKAH 8: AKTIFKAN SSL / HTTPS (LET'S ENCRYPT)
+================================================================================
+1. Masih di jendela pengaturan website tadi, klik tab "SSL".
+2. Pilih tab "Let's Encrypt".
+3. Centang nama domain Anda, lalu klik tombol "Apply".
+4. Setelah sertifikat berhasil diterbitkan, aktifkan saklar "Force HTTPS".
+
+
+================================================================================
+PERINTAH BERGUNA UNTUK PERAWATAN (MAINTENANCE)
+================================================================================
+- Melihat status server API:
+  pm2 status
+
+- Melihat log API secara live:
+  pm2 logs tpb-api
+
+- Merestart backend API:
+  pm2 restart tpb-api
+
+- Jika Anda mengupdate kode di kemudian hari:
+  cd /www/wwwroot/tpb-website
+  pnpm build
+  pm2 restart tpb-api
+
+================================================================================
+SELESAI! Website Anda kini sudah online, aman dengan HTTPS, dan responsif.
+================================================================================
