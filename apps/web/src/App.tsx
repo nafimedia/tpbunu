@@ -145,7 +145,7 @@ function PublicApp() {
   return (
     <div className="min-h-full bg-cream font-sans text-midnight">
       <Header brand={settings.brand} navigation={site.nav} blocks={page.blocks} slug={slug} onAdmin={() => { window.location.hash = "admin"; }} onDaftar={onDaftar} />
-      <main>
+      <main className={slug !== "beranda" ? "pt-20 sm:pt-24" : undefined}>
         {page.blocks.slice(0, mountedBlocks).map((block, index) => <BlockRenderer key={block.id ?? `blok-${index}`} block={block} onDaftar={onDaftar} />)}
       </main>
       {mountedBlocks >= page.blocks.length ? <Footer footer={settings.footer} /> : null}
