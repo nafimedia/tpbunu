@@ -46,12 +46,12 @@ LANGKAH 3: MEMBUAT & MENGIMPOR DATABASE MYSQL
 ================================================================================
 1. Di menu kiri aaPanel, klik "Databases".
 2. Klik tombol "Add database":
-   - DB Name  : tpb
-   - Username : tpb
+   - DB Name  : db_tpb
+   - Username : db_tpb
    - Password : (buat password yang kuat, lalu CATAT/SIMPAN password ini)
    - Character: utf8mb4
 3. Klik "Submit".
-4. Pada baris database "tpb" yang baru dibuat, klik tombol "Import".
+4. Pada baris database "db_tpb" yang baru dibuat, klik tombol "Import".
 5. Klik "Upload from local" (atau "Import from server file").
 6. Pilih berkas "db_tpb_export.sql" (terletak di /www/wwwroot/tpb-website/db_tpb_export.sql).
 7. Klik "Import" dan tunggu sampai sukses mengimpor semua tabel.
@@ -67,7 +67,7 @@ LANGKAH 4: PENGATURAN FILE ENVIRONMENT (.ENV) BACKEND
 
    NODE_ENV=production
    PORT=3000
-   DATABASE_URL="mysql://tpb:MASUKKAN_PASSWORD_DB_ANDA@localhost:3306/tpb"
+   DATABASE_URL="mysql://db_tpb:MASUKKAN_PASSWORD_DB_ANDA@localhost:3306/db_tpb"
    JWT_ACCESS_SECRET=ganti_dengan_teks_acak_panjang_minimal_32_karakter
    JWT_ACCESS_TTL_SECONDS=900
    JWT_REFRESH_TTL_DAYS=30
