@@ -82,7 +82,10 @@ function PublicApp() {
           setState("notfound");
           return;
         }
-        setPage(result);
+        setPage({
+          ...result,
+          blocks: result.blocks.filter((b) => b.isVisible !== false),
+        });
         setState("ready");
         let meta = document.querySelector('meta[name="description"]');
         if (!meta) {
