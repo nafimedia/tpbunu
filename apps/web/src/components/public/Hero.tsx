@@ -53,17 +53,29 @@ export function Header({
     <header className="fixed inset-x-0 top-0 z-50">
       <div className={`transition-all duration-300 ${scrolled ? "bg-midnight/95 backdrop-blur-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.8)] border-b border-white/10" : "bg-midnight/80 backdrop-blur-xl border-b border-white/10 shadow-sm"}`}>
         <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-2.5 sm:px-5 sm:py-3 lg:px-10">
-          <a href="/" onClick={(event) => { if (handleInternal("/")) event.preventDefault(); }} className="group flex min-w-0 items-center gap-2.5 sm:gap-3">
-            {brand.logoUrl && !logoFailed ? (
-              <DriveImage src={brand.logoUrl} alt={`${brand.name} logo`} className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 object-contain drop-shadow-sm transition group-hover:scale-105" onError={() => setLogoFailed(true)} />
-            ) : (
-              <Crest className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 drop-shadow-sm transition group-hover:scale-105" />
-            )}
-            <span className="min-w-0 leading-none">
-              <span className="block truncate font-mono text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-gold">{brand.kicker}</span>
-              <span className="block truncate font-display text-[14px] sm:text-[16px] font-extrabold leading-tight text-white transition group-hover:text-gold-light">{brand.name}</span>
-              <span className="block truncate text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.14em] sm:tracking-[0.18em] text-white/70">{brand.org}</span>
-            </span>
+          <a href="/" onClick={(event) => { if (handleInternal("/")) event.preventDefault(); }} className="group flex shrink-0 items-center gap-2.5 sm:gap-3.5">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-white p-1 sm:p-1.5 shadow-sm transition group-hover:scale-105">
+              {brand.logoUrl && !logoFailed ? (
+                <DriveImage src={brand.logoUrl} alt={`${brand.name} logo`} className="h-full w-full object-contain" onError={() => setLogoFailed(true)} />
+              ) : (
+                <Crest className="h-full w-full" />
+              )}
+            </div>
+            <div className="flex flex-col justify-center">
+              {brand.kicker ? (
+                <span className="font-sans text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-gold leading-tight">
+                  {brand.kicker}
+                </span>
+              ) : null}
+              <span className="font-sans text-[14px] sm:text-[16px] lg:text-[17px] font-extrabold text-white tracking-tight leading-snug transition group-hover:text-gold-light sm:whitespace-nowrap">
+                {brand.name}
+              </span>
+              {brand.org ? (
+                <span className="font-sans text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-white/80 leading-tight">
+                  {brand.org}
+                </span>
+              ) : null}
+            </div>
           </a>
 
           <nav className="ml-auto hidden items-center gap-1 xl:flex" onMouseLeave={() => setOpen(null)}>
