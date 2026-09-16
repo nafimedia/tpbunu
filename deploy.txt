@@ -66,19 +66,20 @@ LANGKAH 4: PENGATURAN FILE ENVIRONMENT (.ENV) BACKEND
 3. Klik 2x pada file ".env" tersebut untuk mengedit isinya:
 
    NODE_ENV=production
-   PORT=3005
+   PORT=3006
    DATABASE_URL="mysql://db_tpb:MASUKKAN_PASSWORD_DB_ANDA@localhost:3306/db_tpb"
-   JWT_ACCESS_SECRET=ganti_dengan_teks_acak_panjang_minimal_32_karakter
+   JWT_ACCESS_SECRET=kuncirahasiaacakpanjangminimal32karakteryangsangatkuat
    JWT_ACCESS_TTL_SECONDS=900
    JWT_REFRESH_TTL_DAYS=30
    COOKIE_SECURE=true
    COOKIE_NAME=tpb_refresh
    COOKIE_DOMAIN=
-   MEDIA_DIR=uploads
+   CORS_ORIGINS=https://tpb.unupurwokerto.ac.id
+   MEDIA_DIR=/www/wwwroot/tpb.unupurwokerto.ac.id/apps/api/uploads
    MEDIA_MAX_MB=10
    TRUST_PROXY=true
 
-   (Catatan penting: Port menggunakan 3005 karena port 3000 di server sudah
+   (Catatan penting: Port menggunakan 3006 karena port 3000 di server sudah
     digunakan oleh aplikasi lain 'KARTANING').
 
 4. Klik "Save" untuk menyimpan perubahan file .env.
@@ -109,14 +110,14 @@ PILIHAN A: MENGGUNAKAN PM2 (Paling Dianjurkan & Praktis)
 -------------------------------------------------------
 Di Terminal aaPanel:
 1. Jalankan aplikasi menggunakan PM2:
-   PORT=3005 pm2 start ecosystem.config.cjs --env production
+   PORT=3006 pm2 start ecosystem.config.cjs --env production
 
 2. Simpan daftar proses agar otomatis hidup saat VPS reboot/restart:
    pm2 save
    pm2 startup
 
 3. Verifikasi apakah backend sudah hidup dan database terhubung:
-   curl http://127.0.0.1:3005/v1/health
+   curl http://127.0.0.1:3006/v1/health
 
    (Jika berhasil, server akan membalas: {"ok":true,"database":"up"})
 
@@ -130,11 +131,11 @@ Jika Anda ingin tanpa terminal PM2 dan lewat menu antarmuka (GUI) aaPanel:
    - Run Path          : /www/wwwroot/tpb-website
    - Start Command     : node apps/api/dist/main.js
    - Run User          : www (atau root)
-   - Port              : 3005
+   - Port              : 3006
    - Node.js version   : v22 atau v24
 3. Klik "Submit".
 4. Verifikasi di terminal:
-   curl http://127.0.0.1:3005/v1/health
+   curl http://127.0.0.1:3006/v1/health
 
 
 ================================================================================
@@ -159,7 +160,7 @@ LANGKAH 7: MENAMBAHKAN WEBSITE & PENGATURAN NGINX
    }
 
    location /v1/ {
-       proxy_pass http://127.0.0.1:3005;
+       proxy_pass http://127.0.0.1:3006;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -167,7 +168,7 @@ LANGKAH 7: MENAMBAHKAN WEBSITE & PENGATURAN NGINX
    }
 
    location /media/ {
-       proxy_pass http://127.0.0.1:3005;
+       proxy_pass http://127.0.0.1:3006;
        proxy_set_header Host $host;
    }
 
