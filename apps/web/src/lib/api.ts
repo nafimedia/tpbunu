@@ -2,7 +2,14 @@ import type {
   AdminUser, AuditEntry, Block, DashboardSummary, ImportSummary, MediaAsset, NavItemInput, PageSummary, Post, PublicPage, Registration, SiteBundle, SiteSettings, Subscriber,
 } from "@tpb/contracts";
 
-const BASE = (import.meta.env.VITE_API_URL || "http://localhost:3000/v1").replace(/\/$/, "");
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const BASE = (
+  typeof rawApiUrl === "string" && rawApiUrl.trim().length > 0
+    ? rawApiUrl
+    : import.meta.env.PROD
+      ? "/v1"
+      : "http://localhost:3000/v1"
+).replace(/\/$/, "");
 
 let accessToken: string | null = null;
 
