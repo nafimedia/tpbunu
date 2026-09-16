@@ -14,7 +14,21 @@ function handleInternal(href: string) {
   return false;
 }
 
-export function Header({ brand, navigation, blocks, slug, onAdmin }: { brand: SiteContent["brand"]; navigation: NavItemInput[]; blocks: Block[]; slug: string; onAdmin: () => void }) {
+export function Header({
+  brand,
+  navigation,
+  blocks,
+  slug,
+  onAdmin,
+  onDaftar,
+}: {
+  brand: SiteContent["brand"];
+  navigation: NavItemInput[];
+  blocks: Block[];
+  slug: string;
+  onAdmin: () => void;
+  onDaftar?: () => void;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [mobile, setMobile] = useState(false);
@@ -33,62 +47,98 @@ export function Header({ brand, navigation, blocks, slug, onAdmin }: { brand: Si
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const linkClass = "rounded-full px-4 py-2.5 text-[12px] font-bold text-midnight/70 transition hover:bg-midnight/5 hover:text-midnight";
+  const linkClass = "rounded-full px-3.5 py-2 text-[13px] font-semibold text-white/85 transition hover:bg-white/10 hover:text-white active:scale-95";
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className={`transition-all duration-500 ${scrolled ? "bg-cream/85 backdrop-blur-xl shadow-[0_10px_40px_-24px_rgba(14,16,68,0.6)]" : "bg-cream/0"}`}>
-        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-10">
-          <a href="/" onClick={(event) => { if (handleInternal("/")) event.preventDefault(); }} className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-            {brand.logoUrl && !logoFailed ? <DriveImage src={brand.logoUrl} alt={`${brand.name} logo`} className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 object-contain drop-shadow-sm" onError={() => setLogoFailed(true)} /> : <Crest className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 drop-shadow-sm" />}
+      <div className={`transition-all duration-300 ${scrolled ? "bg-midnight/95 backdrop-blur-2xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.8)] border-b border-white/10" : "bg-midnight/80 backdrop-blur-xl border-b border-white/10 shadow-sm"}`}>
+        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-2.5 sm:px-5 sm:py-3 lg:px-10">
+          <a href="/" onClick={(event) => { if (handleInternal("/")) event.preventDefault(); }} className="group flex min-w-0 items-center gap-2.5 sm:gap-3">
+            {brand.logoUrl && !logoFailed ? (
+              <DriveImage src={brand.logoUrl} alt={`${brand.name} logo`} className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 object-contain drop-shadow-sm transition group-hover:scale-105" onError={() => setLogoFailed(true)} />
+            ) : (
+              <Crest className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 drop-shadow-sm transition group-hover:scale-105" />
+            )}
             <span className="min-w-0 leading-none">
-              <span className="block truncate font-mono text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.2em] sm:tracking-[0.32em] text-leaf-600">{brand.kicker}</span>
-              <span className="block truncate font-display text-[13px] sm:text-[15px] font-extrabold leading-tight text-midnight">{brand.name}</span>
-              <span className="block truncate text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-midnight/55">{brand.org}</span>
+              <span className="block truncate font-mono text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-gold">{brand.kicker}</span>
+              <span className="block truncate font-display text-[14px] sm:text-[16px] font-extrabold leading-tight text-white transition group-hover:text-gold-light">{brand.name}</span>
+              <span className="block truncate text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.14em] sm:tracking-[0.18em] text-white/70">{brand.org}</span>
             </span>
           </a>
 
-          <nav className="ml-auto hidden items-center gap-0.5 xl:flex" onMouseLeave={() => setOpen(null)}>
+          <nav className="ml-auto hidden items-center gap-1 xl:flex" onMouseLeave={() => setOpen(null)}>
             {navigation.map((item) => (
               <div key={`${item.label}-${item.href}`} className="relative" onPointerEnter={(event) => { if (event.pointerType !== "touch") setOpen(item.label); }}>
                 {item.children?.length ? (
-                  <button ref={(node) => { if (node) triggers.current.set(item.label, node); else triggers.current.delete(item.label); }} type="button" aria-expanded={open === item.label} onClick={() => setOpen((current) => (current === item.label ? null : item.label))} className={linkClass}>{item.label}</button>
+                  <button
+                    ref={(node) => { if (node) triggers.current.set(item.label, node); else triggers.current.delete(item.label); }}
+                    type="button"
+                    aria-expanded={open === item.label}
+                    onClick={() => setOpen((current) => (current === item.label ? null : item.label))}
+                    className={`${linkClass} ${open === item.label ? "bg-white/10 text-white" : ""}`}
+                  >
+                    {item.label}
+                    <span className="ml-1 text-[10px] opacity-70" aria-hidden="true">▾</span>
+                  </button>
                 ) : (
                   <a href={item.href} onClick={(event) => { if (handleInternal(item.href)) event.preventDefault(); }} className={linkClass}>{item.label}</a>
                 )}
                 {item.children?.length && open === item.label ? (
-                  <div className="absolute left-1/2 top-full mt-2 w-56 -translate-x-1/2 rounded-2xl border border-midnight/10 bg-white p-2 shadow-xl">
+                  <div className="absolute left-1/2 top-full mt-2 w-56 -translate-x-1/2 rounded-2xl border border-white/15 bg-midnight/95 backdrop-blur-2xl p-2 shadow-2xl">
                     {item.children.map((child) => (
                       <div key={`${child.label}-${child.href}`}>
-                        <a href={child.href} target={child.openInNewTab ? "_blank" : undefined} rel={child.openInNewTab ? "noopener noreferrer" : undefined} onClick={(event) => { if (handleInternal(child.href)) event.preventDefault(); }} className="block rounded-xl px-3 py-2 text-sm text-midnight/70 hover:bg-cream hover:text-midnight">{child.label}</a>
-                        {child.children?.length ? <div className="ml-3 border-l border-midnight/10 pl-2">{child.children.map((grand) => <a key={`${grand.label}-${grand.href}`} href={grand.href} target={grand.openInNewTab ? "_blank" : undefined} rel={grand.openInNewTab ? "noopener noreferrer" : undefined} onClick={(event) => { if (handleInternal(grand.href)) event.preventDefault(); }} className="block rounded-lg px-3 py-1.5 text-xs text-midnight/55 hover:bg-cream hover:text-midnight">{grand.label}</a>)}</div> : null}
+                        <a href={child.href} target={child.openInNewTab ? "_blank" : undefined} rel={child.openInNewTab ? "noopener noreferrer" : undefined} onClick={(event) => { if (handleInternal(child.href)) event.preventDefault(); }} className="block rounded-xl px-3.5 py-2 text-sm text-white/80 hover:bg-white/10 hover:text-white">{child.label}</a>
+                        {child.children?.length ? <div className="ml-3 border-l border-white/15 pl-2">{child.children.map((grand) => <a key={`${grand.label}-${grand.href}`} href={grand.href} target={grand.openInNewTab ? "_blank" : undefined} rel={grand.openInNewTab ? "noopener noreferrer" : undefined} onClick={(event) => { if (handleInternal(grand.href)) event.preventDefault(); }} className="block rounded-lg px-3 py-1.5 text-xs text-white/60 hover:bg-white/10 hover:text-white">{grand.label}</a>)}</div> : null}
                       </div>
                     ))}
                   </div>
                 ) : null}
               </div>
             ))}
-            <SearchButton blocks={blocks} navigation={navigation} slug={slug} />
-            <button onClick={onAdmin} className="rounded-full bg-midnight px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-midnight-700">Admin</button>
+            <div className="ml-1.5 flex items-center gap-2">
+              <SearchButton blocks={blocks} navigation={navigation} slug={slug} />
+              {onDaftar && (
+                <button onClick={onDaftar} className="rounded-full bg-gold px-4 py-2 text-[12px] font-extrabold text-midnight transition hover:bg-gold-light active:scale-95 shadow-sm">
+                  Daftar PMB
+                </button>
+              )}
+              <button onClick={onAdmin} title="Panel Admin" className="rounded-full border border-white/20 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-white/70 transition hover:bg-white/15 hover:text-white">
+                Admin
+              </button>
+            </div>
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 xl:hidden">
             <SearchButton blocks={blocks} navigation={navigation} slug={slug} compact />
-            <button onClick={() => setMobile((v) => !v)} aria-label="Menu" aria-expanded={mobile} className="rounded-full border border-midnight/15 bg-white/75 backdrop-blur-sm px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold text-midnight shadow-sm">☰</button>
+            {onDaftar && (
+              <button onClick={onDaftar} className="rounded-full bg-gold px-3 py-1.5 text-[11px] font-extrabold text-midnight transition hover:bg-gold-light active:scale-95 shadow-sm">
+                PMB
+              </button>
+            )}
+            <button onClick={() => setMobile((v) => !v)} aria-label="Menu" aria-expanded={mobile} className="rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-white/20 transition">
+              ☰
+            </button>
           </div>
         </div>
 
         {mobile && (
-          <div className="mx-4 mb-3 max-h-[calc(100vh-80px)] overflow-y-auto rounded-2xl border border-midnight/10 bg-white p-3 shadow-xl xl:hidden">
+          <div className="mx-4 mb-3 max-h-[calc(100vh-80px)] overflow-y-auto rounded-2xl border border-white/15 bg-midnight/95 backdrop-blur-2xl p-4 shadow-2xl xl:hidden">
             {navigation.map((item) => (
-              <div key={`${item.label}-${item.href}`}>
-                <a href={item.href} onClick={(event) => { setMobile(false); if (handleInternal(item.href)) event.preventDefault(); }} className="block rounded-xl px-3 py-2 text-sm font-bold text-midnight/80 hover:bg-cream">{item.label}</a>
+              <div key={`${item.label}-${item.href}`} className="border-b border-white/5 last:border-0 py-1">
+                <a href={item.href} onClick={(event) => { setMobile(false); if (handleInternal(item.href)) event.preventDefault(); }} className="block rounded-xl px-3 py-2 text-sm font-bold text-white/90 hover:bg-white/10">{item.label}</a>
                 {item.children?.map((child) => (
-                  <a key={`${child.label}-${child.href}`} href={child.href} onClick={(event) => { setMobile(false); if (handleInternal(child.href)) event.preventDefault(); }} className="block rounded-xl px-6 py-2 text-sm text-midnight/60 hover:bg-cream">{child.label}</a>
+                  <a key={`${child.label}-${child.href}`} href={child.href} onClick={(event) => { setMobile(false); if (handleInternal(child.href)) event.preventDefault(); }} className="block rounded-xl px-6 py-1.5 text-xs text-white/65 hover:bg-white/10 hover:text-white">{child.label}</a>
                 ))}
               </div>
             ))}
-            <button onClick={() => { setMobile(false); onAdmin(); }} className="mt-2 w-full rounded-xl bg-midnight px-3 py-2 text-sm font-bold text-white">Panel Admin</button>
+            {onDaftar && (
+              <button onClick={() => { setMobile(false); onDaftar(); }} className="mt-3 w-full rounded-xl bg-gold py-2.5 text-sm font-extrabold text-midnight hover:bg-gold-light transition active:scale-95">
+                Pendaftaran PMB
+              </button>
+            )}
+            <button onClick={() => { setMobile(false); onAdmin(); }} className="mt-2 w-full rounded-xl border border-white/15 bg-white/5 py-2 text-xs font-semibold text-white/70 hover:bg-white/10">
+              Panel Admin
+            </button>
           </div>
         )}
       </div>

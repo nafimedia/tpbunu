@@ -48,7 +48,7 @@ export function buildBlockIndex(blocks: Block[], navigation: NavItemInput[], slu
     .filter((entry) => entry.text.length > 0);
 }
 
-export function SearchButton({ blocks, navigation, slug = HOME_SLUG, compact = false }: { blocks: Block[]; navigation: NavItemInput[]; slug?: string; compact?: boolean }) {
+export function SearchButton({ blocks, navigation, slug = HOME_SLUG, compact = false, className }: { blocks: Block[]; navigation: NavItemInput[]; slug?: string; compact?: boolean; className?: string }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -65,9 +65,9 @@ export function SearchButton({ blocks, navigation, slug = HOME_SLUG, compact = f
     <button
       onClick={() => setOpen(true)}
       aria-label="Cari di situs"
-      className={compact
-        ? "rounded-full border border-midnight/15 px-4 py-2 text-xs font-bold"
-        : "rounded-full px-4 py-2.5 text-[12px] font-bold text-midnight/70 transition hover:bg-midnight/5 hover:text-midnight"}
+      className={className || (compact
+        ? "rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm hover:bg-white/20 transition"
+        : "rounded-full px-3.5 py-2 text-[13px] font-semibold text-white/85 transition hover:bg-white/10 hover:text-white")}
     >🔍 Cari</button>
     {open && <SearchDialog blocks={blocks} navigation={navigation} slug={slug} onClose={() => setOpen(false)} />}
   </>;
