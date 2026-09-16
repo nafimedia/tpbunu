@@ -45,7 +45,7 @@ async function run() {
     },
     {
       label: 'Pedoman Capstone Design',
-      href: 'https://drive.google.com/drive/folders/1lcoFjjfh4R7q-ky5P_GTh66I1DvYsIU5?usp=drive_link',
+      href: 'https://drive.google.com/drive/folders/1tgOnCfWeDRQK8a81kdmBKgb-Z9FzODne?usp=drive_link',
       note: 'Buku Pedoman Capstone Design',
     },
     {
