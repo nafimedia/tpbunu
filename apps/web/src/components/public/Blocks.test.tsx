@@ -70,10 +70,12 @@ describe("BlockRenderer", () => {
     render(<BlockRenderer block={block({ id: "b9", type: "about", data: { kicker: "K", title: "T", body: "", sinceYear: "2024", sinceNote: "", image: "", points: [] }, isVisible: true, anchor: "profil-baru" })} onDaftar={noop} />);
     render(<BlockRenderer block={block({ id: "b10", type: "programs", data: { kicker: "K", title: "T", cta: "Daftar", cards: [] }, isVisible: true, anchor: "program" })} onDaftar={noop} />);
     render(<BlockRenderer block={block({ id: "b11", type: "cta", data: { title: "T", body: "", primary: "Daftar", secondary: "Kontak", secondaryHref: "#kontak" }, isVisible: true, anchor: "ajakan" })} onDaftar={noop} />);
-    await waitFor(() => expect(document.getElementById("angka")).toBeTruthy());
-    expect(document.getElementById("profil-baru")).toBeTruthy();
-    expect(document.getElementById("program")).toBeTruthy();
-    expect(document.getElementById("ajakan")).toBeTruthy();
+    await waitFor(() => {
+      expect(document.getElementById("angka")).toBeTruthy();
+      expect(document.getElementById("profil-baru")).toBeTruthy();
+      expect(document.getElementById("program")).toBeTruthy();
+      expect(document.getElementById("ajakan")).toBeTruthy();
+    });
   });
 
   it("blok preset tanpa anchor tetap memakai id bawaannya", async () => {

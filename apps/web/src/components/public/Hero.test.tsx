@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { NavItemInput, SiteContent } from "@tpb/contracts";
-import { Header } from "./Hero";
+import { Header, Hero } from "./Hero";
 
 const brand: SiteContent["brand"] = { kicker: "Teknik", name: "TPB", org: "UNU Purwokerto", logoUrl: "" };
 const navigation: NavItemInput[] = [
@@ -81,3 +81,50 @@ describe("Header — dropdown desktop", () => {
     expect(screen.queryByRole("button", { name: "Beranda" })).toBeNull();
   });
 });
+
+describe("Hero — banner background responsif", () => {
+  const dummyHero: SiteContent["hero"] = {
+    badge: "Terakreditasi · UNU Purwokerto",
+    line1: "Selamat Datang",
+    highlight: "Prodi Teknik",
+    line2: "Pertanian & Biosistem",
+    subtitle: "Deskripsi program studi",
+    primaryLabel: "Jelajahi Program",
+    primaryHref: "#akademik",
+    secondaryLabel: "Pendaftaran Mahasiswa",
+    image: "/images/hero-banner.jpg",
+  };
+
+  it("merender banner dengan gambar UNU Purwokerto dan alt deskriptif", () => {
+    const { container } = render(<Hero hero={dummyHero} onDaftar={vi.fn()} />);
+    const img = container.querySelector("img");
+    expect(img).toBeTruthy();
+    expect(img?.getAttribute("src")).toBe("/images/hero-banner.jpg");
+    expect(img?.getAttribute("alt")).toBe("Gedung Kampus Universitas Nahdlatul Ulama Purwokerto");
+    expect(img?.className).toContain("object-cover");
+    expect(img?.className).toContain("object-[center_35%]");
+  });
+
+  it("memakai gambar bawaan /images/hero-banner.jpg bila hero.image kosong", () => {
+    const heroWithoutImage = { ...dummyHero, image: "" };
+    const { container } = render(<Hero hero={heroWithoutImage} onDaftar={vi.fn()} />);
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("src")).toBe("/images/hero-banner.jpg");
+  });
+
+  it("merender teks judul, highlight, badge, dan tombol CTA dengan benar", () => {
+    const onDaftar = vi.fn();
+    render(<Hero hero={dummyHero} onDaftar={onDaftar} />);
+    expect(screen.getByText("Terakreditasi · UNU Purwokerto")).toBeTruthy();
+    expect(screen.getByText("Prodi Teknik")).toBeTruthy();
+    expect(screen.getByText("Deskripsi program studi")).toBeTruthy();
+
+    const btn = screen.getByRole("button", { name: "Jelajahi Program" });
+    fireEvent.click(btn);
+    expect(onDaftar).toHaveBeenCalledTimes(1);
+
+    const secondary = screen.getByRole("link", { name: "Pendaftaran Mahasiswa" });
+    expect(secondary).toBeTruthy();
+  });
+});
+

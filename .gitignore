@@ -29,3 +29,7 @@ apps/api/uploads/
 # Claude Code session data
 .claude/
 
+# Deployment & DB archives
+*.zip
+*.sql
+

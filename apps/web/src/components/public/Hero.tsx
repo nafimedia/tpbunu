@@ -38,13 +38,13 @@ export function Header({ brand, navigation, blocks, slug, onAdmin }: { brand: Si
   return (
     <header className="fixed inset-x-0 top-0 z-50">
       <div className={`transition-all duration-500 ${scrolled ? "bg-cream/85 backdrop-blur-xl shadow-[0_10px_40px_-24px_rgba(14,16,68,0.6)]" : "bg-cream/0"}`}>
-        <div className="mx-auto flex max-w-[1360px] items-center gap-6 px-5 py-3.5 lg:px-10">
-          <a href="/" onClick={(event) => { if (handleInternal("/")) event.preventDefault(); }} className="flex shrink-0 items-center gap-3">
-            {brand.logoUrl && !logoFailed ? <DriveImage src={brand.logoUrl} alt={`${brand.name} logo`} className="h-11 w-11 object-contain drop-shadow-sm" onError={() => setLogoFailed(true)} /> : <Crest className="h-11 w-11 drop-shadow-sm" />}
-            <span className="leading-none">
-              <span className="block font-mono text-[9px] font-medium uppercase tracking-[0.32em] text-leaf-600">{brand.kicker}</span>
-              <span className="block font-display text-[15px] font-extrabold leading-tight text-midnight">{brand.name}</span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-midnight/55">{brand.org}</span>
+        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-10">
+          <a href="/" onClick={(event) => { if (handleInternal("/")) event.preventDefault(); }} className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            {brand.logoUrl && !logoFailed ? <DriveImage src={brand.logoUrl} alt={`${brand.name} logo`} className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 object-contain drop-shadow-sm" onError={() => setLogoFailed(true)} /> : <Crest className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 drop-shadow-sm" />}
+            <span className="min-w-0 leading-none">
+              <span className="block truncate font-mono text-[8px] sm:text-[9px] font-medium uppercase tracking-[0.2em] sm:tracking-[0.32em] text-leaf-600">{brand.kicker}</span>
+              <span className="block truncate font-display text-[13px] sm:text-[15px] font-extrabold leading-tight text-midnight">{brand.name}</span>
+              <span className="block truncate text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.14em] sm:tracking-[0.18em] text-midnight/55">{brand.org}</span>
             </span>
           </a>
 
@@ -72,14 +72,14 @@ export function Header({ brand, navigation, blocks, slug, onAdmin }: { brand: Si
             <button onClick={onAdmin} className="rounded-full bg-midnight px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-midnight-700">Admin</button>
           </nav>
 
-          <div className="ml-auto flex items-center gap-2 xl:hidden">
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2 xl:hidden">
             <SearchButton blocks={blocks} navigation={navigation} slug={slug} compact />
-            <button onClick={() => setMobile((v) => !v)} aria-label="Menu" aria-expanded={mobile} className="rounded-full border border-midnight/15 px-4 py-2 text-xs font-bold">☰</button>
+            <button onClick={() => setMobile((v) => !v)} aria-label="Menu" aria-expanded={mobile} className="rounded-full border border-midnight/15 bg-white/75 backdrop-blur-sm px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs font-bold text-midnight shadow-sm">☰</button>
           </div>
         </div>
 
         {mobile && (
-          <div className="mx-4 mb-3 rounded-2xl border border-midnight/10 bg-white p-3 shadow-xl xl:hidden">
+          <div className="mx-4 mb-3 max-h-[calc(100vh-80px)] overflow-y-auto rounded-2xl border border-midnight/10 bg-white p-3 shadow-xl xl:hidden">
             {navigation.map((item) => (
               <div key={`${item.label}-${item.href}`}>
                 <a href={item.href} onClick={(event) => { setMobile(false); if (handleInternal(item.href)) event.preventDefault(); }} className="block rounded-xl px-3 py-2 text-sm font-bold text-midnight/80 hover:bg-cream">{item.label}</a>
@@ -97,7 +97,57 @@ export function Header({ brand, navigation, blocks, slug, onAdmin }: { brand: Si
 }
 
 export function Hero({ hero, onDaftar, anchor = "top" }: { hero: SiteContent["hero"]; onDaftar: () => void; anchor?: string }) {
-  return <section id={anchor} className="relative min-h-screen scroll-mt-24 overflow-hidden bg-midnight"><div className="absolute inset-0"><DriveImage src={hero.image} alt="" className="h-full w-full object-cover opacity-45" loading="eager" fetchPriority="high" sizes="100vw" srcSet={hero.image ? imageSrcSet(hero.image) : undefined} width={1920} height={1080} /><div className="absolute inset-0 bg-gradient-to-r from-midnight via-midnight/80 to-midnight/20" /></div><div className="relative mx-auto flex min-h-screen max-w-[1360px] items-center px-5 pb-20 pt-32 lg:px-10"><div className="max-w-3xl text-white"><span className="reveal inline-flex rounded-full border border-gold/50 bg-gold/10 px-4 py-2 font-mono text-xs uppercase tracking-[0.22em] text-gold">{hero.badge}</span><h1 className="reveal mt-7 font-display text-5xl font-extrabold leading-[0.95] lg:text-8xl">{hero.line1}<br /><span className="text-gold">{hero.highlight}</span><br />{hero.line2}</h1><p className="reveal mt-7 max-w-xl text-base leading-relaxed text-white/75 lg:text-lg">{hero.subtitle}</p><div className="reveal mt-9 flex flex-wrap gap-3"><button onClick={onDaftar} className="rounded-full bg-gold px-7 py-3.5 text-sm font-extrabold text-midnight transition hover:-translate-y-0.5">{hero.primaryLabel}</button>{hero.secondaryLabel && <a href={hero.secondaryHref || hero.primaryHref || "#top"} className="rounded-full border border-white/30 px-7 py-3.5 text-sm font-bold text-white transition hover:bg-white/10">{hero.secondaryLabel}</a>}</div></div></div></section>;
+  const bgImage = hero.image || "/images/hero-banner.jpg";
+  return (
+    <section id={anchor} className="relative min-h-[100svh] min-h-screen scroll-mt-24 overflow-hidden bg-midnight">
+      <div className="absolute inset-0">
+        <DriveImage
+          src={bgImage}
+          alt="Gedung Kampus Universitas Nahdlatul Ulama Purwokerto"
+          className="h-full w-full object-cover object-[center_35%] sm:object-center opacity-45 sm:opacity-50 transition-opacity duration-700"
+          loading="eager"
+          fetchPriority="high"
+          sizes="100vw"
+          srcSet={bgImage ? imageSrcSet(bgImage) : undefined}
+          width={1920}
+          height={1080}
+        />
+        {/* Layer gradien responsif: vertikal pada layar HP/tablet, horizontal pada layar desktop besar */}
+        <div className="absolute inset-0 bg-gradient-to-t from-midnight via-midnight/80 to-midnight/60 lg:bg-gradient-to-r lg:from-midnight lg:via-midnight/80 lg:to-midnight/25" />
+      </div>
+      <div className="relative mx-auto flex min-h-[100svh] min-h-screen max-w-[1360px] items-center px-4 pb-14 pt-24 sm:px-5 sm:pb-20 sm:pt-32 lg:px-10">
+        <div className="max-w-3xl text-white">
+          <span className="reveal inline-flex max-w-full rounded-full border border-gold/50 bg-gold/10 px-3 py-1.5 sm:px-3.5 font-mono text-[10px] sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.22em] text-gold backdrop-blur-sm">
+            <span className="truncate">{hero.badge}</span>
+          </span>
+          <h1 className="reveal mt-4 sm:mt-7 font-display text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-extrabold leading-[1.08] sm:leading-[0.95] break-words">
+            {hero.line1}<br />
+            <span className="text-gold">{hero.highlight}</span><br />
+            {hero.line2}
+          </h1>
+          <p className="reveal mt-4 sm:mt-7 max-w-xl text-sm sm:text-base leading-relaxed text-white/80 lg:text-lg break-words">
+            {hero.subtitle}
+          </p>
+          <div className="reveal mt-7 sm:mt-9 flex flex-wrap gap-2.5 sm:gap-3">
+            <button
+              onClick={onDaftar}
+              className="rounded-full bg-gold px-5 py-3 sm:px-7 sm:py-3.5 text-xs sm:text-sm font-extrabold text-midnight shadow-lg shadow-gold/20 transition hover:-translate-y-0.5 active:translate-y-0"
+            >
+              {hero.primaryLabel}
+            </button>
+            {hero.secondaryLabel && (
+              <a
+                href={hero.secondaryHref || hero.primaryHref || "#top"}
+                className="rounded-full border border-white/30 bg-white/5 backdrop-blur-sm px-5 py-3 sm:px-7 sm:py-3.5 text-xs sm:text-sm font-bold text-white transition hover:bg-white/15 hover:border-white/50 active:translate-y-0"
+              >
+                {hero.secondaryLabel}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function Marquee({ items, anchor }: { items: string[]; anchor?: string }) { return <div id={anchor} className="scroll-mt-24 overflow-hidden bg-gold py-3 text-midnight"><div className="marquee-track flex min-w-max gap-8 font-mono text-xs font-bold uppercase tracking-[0.2em]">{[...items, ...items].map((item, index) => <span key={`${item}-${index}`} className="flex items-center gap-8">{item}<span>✦</span></span>)}</div></div>; }

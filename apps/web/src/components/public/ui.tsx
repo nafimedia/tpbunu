@@ -40,7 +40,18 @@ export function formatDate(iso: string) {
 }
 
 export function Band({ id, tone = "cream", kicker, title, intro, children }: { id: string; tone?: "cream" | "white"; kicker: string; title: string; intro?: string; children?: ReactNode }) {
-  return <section id={id} className={`scroll-mt-24 ${tone === "cream" ? "bg-cream" : "bg-white"} py-16`}><div className="mx-auto max-w-[1360px] px-5 lg:px-10"><div className="reveal max-w-2xl"><span className="font-mono text-[11px] uppercase tracking-[0.3em] text-leaf-600">{kicker}</span><h2 className="mt-3 font-display text-3xl font-extrabold leading-tight text-midnight lg:text-4xl">{title}</h2>{intro && <p className="mt-4 text-[15px] leading-relaxed text-midnight/70">{intro}</p>}</div>{children && <div className="mt-10">{children}</div>}</div></section>;
+  return (
+    <section id={id} className={`scroll-mt-24 ${tone === "cream" ? "bg-cream" : "bg-white"} py-12 sm:py-16`}>
+      <div className="mx-auto max-w-[1360px] px-4 sm:px-5 lg:px-10">
+        <div className="reveal max-w-2xl">
+          <span className="block font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-leaf-600">{kicker}</span>
+          <h2 className="mt-2.5 sm:mt-3 font-display text-2xl sm:text-3xl lg:text-4xl font-extrabold leading-tight text-midnight break-words">{title}</h2>
+          {intro && <p className="mt-3 sm:mt-4 text-sm sm:text-[15px] leading-relaxed text-midnight/70 break-words">{intro}</p>}
+        </div>
+        {children && <div className="mt-8 sm:mt-10">{children}</div>}
+      </div>
+    </section>
+  );
 }
 
 /** Decorative shield marked with rising growth lines — not an institution logo. */

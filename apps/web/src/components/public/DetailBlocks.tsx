@@ -5,19 +5,83 @@ import { Band } from "./ui";
 type Metric = { v: string; l: string };
 
 export function MetricList({ items }: { items: Metric[] }) {
-  return <div className="grid grid-cols-2 gap-4">{items.map((item) => <div key={`${item.v}-${item.l}`} className="reveal rounded-2xl border border-midnight/10 bg-white p-5"><p className="font-display text-3xl font-extrabold text-leaf-600">{item.v}</p><p className="mt-1 text-xs text-midnight/55">{item.l}</p></div>)}</div>;
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      {items.map((item) => (
+        <div key={`${item.v}-${item.l}`} className="reveal rounded-xl sm:rounded-2xl border border-midnight/10 bg-white p-3.5 sm:p-5">
+          <p className="font-display text-2xl sm:text-3xl font-extrabold text-leaf-600 break-words">{item.v}</p>
+          <p className="mt-1 text-[11px] sm:text-xs text-midnight/55 break-words">{item.l}</p>
+        </div>
+      ))}
+    </div>
+  );
 }
+
 export function TagList({ items }: { items: string[] }) {
-  return <div className="flex flex-wrap gap-3">{items.map((item) => <span key={item} className="reveal rounded-full border border-midnight/15 bg-white px-5 py-3 text-sm text-midnight/70">{item}</span>)}</div>;
+  return (
+    <div className="flex flex-wrap gap-2 sm:gap-3">
+      {items.map((item) => (
+        <span key={item} className="reveal rounded-full border border-midnight/15 bg-white px-3.5 py-1.5 sm:px-5 sm:py-3 text-xs sm:text-sm text-midnight/70 break-words">
+          {item}
+        </span>
+      ))}
+    </div>
+  );
 }
+
 export function TimelineList({ items }: { items: { year: string; text: string }[] }) {
-  return <div className="grid gap-4 md:grid-cols-2">{items.map((item) => <div key={`${item.year}-${item.text}`} className="reveal rounded-2xl border border-midnight/10 bg-white p-5"><span className="font-mono text-sm text-leaf-600">{item.year}</span><p className="mt-2 text-sm leading-relaxed text-midnight/70">{item.text}</p></div>)}</div>;
+  return (
+    <div className="grid gap-3.5 sm:gap-4 md:grid-cols-2">
+      {items.map((item) => (
+        <div key={`${item.year}-${item.text}`} className="reveal rounded-xl sm:rounded-2xl border border-midnight/10 bg-white p-4 sm:p-5">
+          <span className="font-mono text-xs sm:text-sm text-leaf-600 block">{item.year}</span>
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm leading-relaxed text-midnight/70 break-words">{item.text}</p>
+        </div>
+      ))}
+    </div>
+  );
 }
+
 export function PeopleGrid({ items }: { items: { name: string; role: string; photo?: string | null; details?: string[] }[] }) {
-  return <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{items.map((item) => <div key={`${item.name}-${item.role}`} className="reveal rounded-2xl border border-midnight/10 bg-cream p-5">{item.photo && <DriveImage src={item.photo} alt={item.name} className="mb-4 h-40 w-full rounded-xl object-cover" />}<p className="font-display text-xl font-bold text-midnight">{item.name}</p><p className="mt-2 text-sm text-midnight/55">{item.role}</p>{item.details && item.details.length > 0 && <ul className="mt-3 space-y-1 text-xs text-midnight/60">{item.details.map((edu) => <li key={edu}>🎓 {edu}</li>)}</ul>}</div>)}</div>;
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {items.map((item) => (
+        <div key={`${item.name}-${item.role}`} className="reveal rounded-2xl border border-midnight/10 bg-cream p-4 sm:p-5 flex flex-col">
+          {item.photo && (
+            <div className="mb-3.5 sm:mb-4 overflow-hidden rounded-xl bg-midnight/10">
+              <DriveImage src={item.photo} alt={item.name} className="h-40 w-full object-cover" />
+            </div>
+          )}
+          <p className="font-display text-lg sm:text-xl font-bold text-midnight break-words">{item.name}</p>
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-midnight/55 break-words">{item.role}</p>
+          {item.details && item.details.length > 0 && (
+            <ul className="mt-3 space-y-1 text-xs text-midnight/60 break-words border-t border-midnight/10 pt-2">
+              {item.details.map((edu) => (
+                <li key={edu} className="flex items-start gap-1">
+                  <span className="shrink-0">🎓</span>
+                  <span>{edu}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 }
+
 export function CardList({ items }: { items: { title: string; body: string; note?: string }[] }) {
-  return <div className="grid gap-4 md:grid-cols-2">{items.map((item) => <article key={`${item.title}-${item.body}`} className="reveal rounded-2xl border border-midnight/10 bg-white p-6"><h3 className="font-display text-xl font-bold text-midnight">{item.title}</h3><p className="mt-3 text-sm leading-relaxed text-midnight/65">{item.body}</p>{item.note && <p className="mt-3 font-mono text-xs text-leaf-600">{item.note}</p>}</article>)}</div>;
+  return (
+    <div className="grid gap-3.5 sm:gap-4 md:grid-cols-2">
+      {items.map((item) => (
+        <article key={`${item.title}-${item.body}`} className="reveal rounded-xl sm:rounded-2xl border border-midnight/10 bg-white p-4 sm:p-6 flex flex-col">
+          <h3 className="font-display text-lg sm:text-xl font-bold text-midnight break-words">{item.title}</h3>
+          <p className="mt-2 sm:mt-3 text-xs sm:text-sm leading-relaxed text-midnight/65 break-words flex-1">{item.body}</p>
+          {item.note && <p className="mt-3 font-mono text-xs text-leaf-600 break-words">{item.note}</p>}
+        </article>
+      ))}
+    </div>
+  );
 }
 
 const kick = (data: { kicker: string; title: string }, anchor?: string, tone?: "cream" | "white", intro?: string) => ({ id: anchor ?? "", tone, kicker: data.kicker, title: data.title, intro });
@@ -28,15 +92,72 @@ export function TimelineSection({ data, anchor }: { data: SiteContent["profil"][
 
 export function VisiMisiSection({ data, anchor }: { data: SiteContent["profil"]["visiMisi"]; anchor?: string }) {
   const cols = data.tujuan && data.tujuan.length > 0 ? "lg:grid-cols-3" : "lg:grid-cols-2";
-  return <Band {...kick(data, anchor ?? "visi-misi")}><div className={`grid gap-5 ${cols}`}><div className="reveal rounded-3xl bg-midnight p-7 text-white"><span className="font-mono text-xs uppercase tracking-wider text-gold">Visi</span><p className="mt-4 font-display text-2xl font-bold">{data.visi}</p></div><div className="reveal rounded-3xl bg-leaf-600 p-7 text-white"><span className="font-mono text-xs uppercase tracking-wider text-gold">Misi</span><ul className="mt-4 space-y-3 text-sm leading-relaxed">{data.misi.map((item) => <li key={item}>✦ {item}</li>)}</ul></div>{data.tujuan && data.tujuan.length > 0 && <div className="reveal rounded-3xl bg-gold p-7 text-midnight"><span className="font-mono text-xs uppercase tracking-wider">Tujuan</span><ul className="mt-4 space-y-3 text-sm leading-relaxed">{data.tujuan.map((item) => <li key={item}>➤ {item}</li>)}</ul></div>}</div></Band>;
+  return (
+    <Band {...kick(data, anchor ?? "visi-misi")}>
+      <div className={`grid gap-4 sm:gap-5 ${cols}`}>
+        <div className="reveal rounded-2xl sm:rounded-3xl bg-midnight p-5 sm:p-7 text-white">
+          <span className="font-mono text-xs uppercase tracking-wider text-gold">Visi</span>
+          <p className="mt-3 sm:mt-4 font-display text-xl sm:text-2xl font-bold break-words">{data.visi}</p>
+        </div>
+        <div className="reveal rounded-2xl sm:rounded-3xl bg-leaf-600 p-5 sm:p-7 text-white">
+          <span className="font-mono text-xs uppercase tracking-wider text-gold">Misi</span>
+          <ul className="mt-3 sm:mt-4 space-y-2.5 sm:space-y-3 text-xs sm:text-sm leading-relaxed">
+            {data.misi.map((item) => (
+              <li key={item} className="flex items-start gap-2">
+                <span className="text-gold shrink-0">✦</span>
+                <span className="break-words">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        {data.tujuan && data.tujuan.length > 0 && (
+          <div className="reveal rounded-2xl sm:rounded-3xl bg-gold p-5 sm:p-7 text-midnight">
+            <span className="font-mono text-xs uppercase tracking-wider">Tujuan</span>
+            <ul className="mt-3 sm:mt-4 space-y-2.5 sm:space-y-3 text-xs sm:text-sm leading-relaxed">
+              {data.tujuan.map((item) => (
+                <li key={item} className="flex items-start gap-2">
+                  <span className="shrink-0">➤</span>
+                  <span className="break-words">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </Band>
+  );
 }
 
 export function StrukturSection({ data, anchor }: { data: SiteContent["profil"]["struktur"]; anchor?: string }) {
-  return <Band {...kick(data, anchor ?? "struktur", "white")}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{data.people.map((person) => <div key={`${person.role}-${person.name}`} className="reveal rounded-2xl border border-midnight/10 bg-cream p-5"><p className="text-xs uppercase tracking-wider text-leaf-600">{person.role}</p><p className="mt-2 font-display text-xl font-bold text-midnight">{person.name}</p></div>)}</div></Band>;
+  return (
+    <Band {...kick(data, anchor ?? "struktur", "white")}>
+      <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {data.people.map((person) => (
+          <div key={`${person.role}-${person.name}`} className="reveal rounded-xl sm:rounded-2xl border border-midnight/10 bg-cream p-4 sm:p-5">
+            <p className="text-[11px] sm:text-xs uppercase tracking-wider text-leaf-600">{person.role}</p>
+            <p className="mt-1.5 sm:mt-2 font-display text-lg sm:text-xl font-bold text-midnight break-words">{person.name}</p>
+          </div>
+        ))}
+      </div>
+    </Band>
+  );
 }
 
 export function QuoteSection({ data, anchor }: { data: SiteContent["profil"]["sambutan"]; anchor?: string }) {
-  return <Band {...kick(data, anchor ?? "sambutan")}><div className="grid gap-8 lg:grid-cols-[260px_1fr] lg:items-center"><DriveImage src={data.image} alt={data.name} className="reveal h-64 w-full rounded-3xl object-cover" /><div className="reveal"><p className="font-display text-2xl italic leading-relaxed text-midnight">“{data.quote}”</p><p className="mt-5 font-bold text-midnight">{data.name}</p><p className="text-sm text-midnight/55">{data.role}</p></div></div></Band>;
+  return (
+    <Band {...kick(data, anchor ?? "sambutan")}>
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[260px_1fr] lg:items-center">
+        <div className="reveal overflow-hidden rounded-2xl sm:rounded-3xl">
+          <DriveImage src={data.image} alt={data.name} className="h-56 sm:h-64 w-full object-cover" />
+        </div>
+        <div className="reveal">
+          <p className="font-display text-xl sm:text-2xl italic leading-relaxed text-midnight break-words">“{data.quote}”</p>
+          <p className="mt-4 sm:mt-5 font-bold text-midnight break-words">{data.name}</p>
+          <p className="text-xs sm:text-sm text-midnight/55 break-words">{data.role}</p>
+        </div>
+      </div>
+    </Band>
+  );
 }
 
 export function KurikulumSection({ data, anchor }: { data: SiteContent["akademik"]["kurikulum"]; anchor?: string }) {
