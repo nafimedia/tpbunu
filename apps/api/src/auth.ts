@@ -15,7 +15,7 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(ctx: ExecutionContext) {
     const req = ctx.switchToHttp().getRequest<any>();
     const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
-    if (!token) throw new UnauthorizedException("Token akses diperlukan.");
+    if (!token) throw new UnauthorizedException("Sesi login diperlukan. Silakan masuk kembali.");
     try {
       const payload = this.jwt.verify<{ id?: string }>(token);
       if (!payload.id) throw new Error("subject missing");
@@ -25,7 +25,7 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
-      throw new UnauthorizedException("Token akses tidak valid atau kedaluwarsa.");
+      throw new UnauthorizedException("Sesi login telah berakhir atau tidak valid. Silakan masuk kembali.");
     }
   }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { api, type PaginationMeta } from "../lib/api";
+import { api, setOnUnauthorized, type PaginationMeta } from "../lib/api";
 import { PageBuilder } from "./admin/PageBuilder";
 import { SettingsEditor } from "./admin/SettingsEditor";
 import type {
@@ -55,9 +55,23 @@ const postToForm = (post: Post): PostForm => ({ title: post.title, category: pos
 export function AdminPage() {
   const [user, setUser] = useState<RoleAwareUser | null>(null);
   const [checking, setChecking] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [view, setView] = useState<View>("dashboard");
-  const check = useCallback(async () => { const current = await api.currentUser(); setUser(current as RoleAwareUser | null); setChecking(false); }, []);
+  const check = useCallback(async () => {
+    setSessionExpired(false);
+    const current = await api.currentUser();
+    setUser(current as RoleAwareUser | null);
+    setChecking(false);
+  }, []);
   useEffect(() => { check(); }, [check]);
+
+  useEffect(() => {
+    setOnUnauthorized(() => {
+      setUser(null);
+      setSessionExpired(true);
+    });
+    return () => setOnUnauthorized(null);
+  }, []);
 
   const nav = user ? NAV_ALL.filter((item) => item.roles.includes(user.role)) : NAV_ALL;
 
@@ -68,7 +82,7 @@ export function AdminPage() {
   }, [user, view, nav]);
 
   if (checking) return <PageMessage text="Memuat sesi..." />;
-  if (!user) return <LoginPanel onDone={check} />;
+  if (!user) return <LoginPanel onDone={check} initialNotice={sessionExpired ? "Sesi Anda telah berakhir. Silakan masuk kembali." : undefined} />;
   return <div className="min-h-screen bg-slate-100 flex">
     <aside className="w-64 shrink-0 bg-slate-900 text-slate-100 p-4 space-y-1 hidden md:block">
       <p className="font-bold text-lg mb-4 px-2">Panel Admin TPB</p>
@@ -275,8 +289,8 @@ function AuditView() {
 
 function AuditList({ entries, detailed = false }: { entries: AuditEntry[]; detailed?: boolean }) { if (!entries.length) return <p className="text-sm text-slate-500">Belum ada aktivitas.</p>; return <div className="divide-y divide-slate-100">{entries.map((entry) => <div key={entry.id} className="py-3 text-sm"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium text-slate-800">{entry.action} - {entry.entity}</span><span className="text-xs text-slate-500">{formatDate(entry.createdAt)}</span></div>{detailed && <p className="text-xs text-slate-500 mt-1">{entry.user?.email || "Sistem"} - {entry.entityId || "-"} - {entry.ip || "-"}</p>}{detailed && entry.metadata && <pre className="mt-2 overflow-auto rounded bg-slate-50 p-2 text-xs text-slate-600">{JSON.stringify(entry.metadata, null, 2)}</pre>}</div>)}</div>; }
 
-function LoginPanel({ onDone }: { onDone: () => void }) {
+function LoginPanel({ onDone, initialNotice }: { onDone: () => void; initialNotice?: string }) {
   const [mode, setMode] = useState<"login" | "bootstrap">("login"); const [form, setForm] = useState({ name: "", email: "", password: "" }); const [busy, setBusy] = useState(false); const [error, setError] = useState("");
   const submit = async (event: FormEvent) => { event.preventDefault(); setBusy(true); setError(""); try { if (mode === "bootstrap") await api.bootstrap(form.name, form.email, form.password); else await api.login(form.email, form.password); onDone(); } catch (e: any) { setError(e?.message ?? "Gagal masuk."); } finally { setBusy(false); } };
-  return <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4"><form onSubmit={submit} className="bg-white rounded-2xl shadow p-8 w-full max-w-sm space-y-4"><h1 className="text-xl font-bold text-slate-900">Panel Admin TPB</h1><p className="text-sm text-slate-500">{mode === "login" ? "Masuk dengan akun admin Anda." : "Buat akun admin pertama (hanya tersedia sekali, saat database masih kosong)."}</p>{mode === "bootstrap" && <input required className="admin-input w-full" placeholder="Nama" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />}<input required type="email" className="admin-input w-full" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /><input required type="password" minLength={10} className="admin-input w-full" placeholder="Kata sandi (min. 10 karakter)" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />{error && <Notice error={error} />}<button disabled={busy} className="button-primary w-full disabled:opacity-50">{busy ? "Memproses..." : mode === "login" ? "Masuk" : "Buat Akun Admin"}</button><button type="button" onClick={() => setMode(mode === "login" ? "bootstrap" : "login")} className="w-full text-xs text-slate-500 hover:text-slate-800">{mode === "login" ? "Akun admin pertama? Buat di sini" : "Sudah punya akun? Masuk"}</button></form></div>;
+  return <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4"><form onSubmit={submit} className="bg-white rounded-2xl shadow p-8 w-full max-w-sm space-y-4"><h1 className="text-xl font-bold text-slate-900">Panel Admin TPB</h1><p className="text-sm text-slate-500">{mode === "login" ? "Masuk dengan akun admin Anda." : "Buat akun admin pertama (hanya tersedia sekali, saat database masih kosong)."}</p>{initialNotice && !error && <Notice error={initialNotice} />}{mode === "bootstrap" && <input required className="admin-input w-full" placeholder="Nama" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />}<input required type="email" className="admin-input w-full" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /><input required type="password" minLength={10} className="admin-input w-full" placeholder="Kata sandi (min. 10 karakter)" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />{error && <Notice error={error} />}<button disabled={busy} className="button-primary w-full disabled:opacity-50">{busy ? "Memproses..." : mode === "login" ? "Masuk" : "Buat Akun Admin"}</button><button type="button" onClick={() => setMode(mode === "login" ? "bootstrap" : "login")} className="w-full text-xs text-slate-500 hover:text-slate-800">{mode === "login" ? "Akun admin pertama? Buat di sini" : "Sudah punya akun? Masuk"}</button></form></div>;
 }

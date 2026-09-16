@@ -40,7 +40,7 @@ export class PostsController {
     const where = all === "1" ? { deletedAt: null } : { deletedAt: null, status: "published" as const };
     if (all === "1") {
       const user = await this.optionalUser(req);
-      if (!user) throw new UnauthorizedException("Token akses diperlukan.");
+      if (!user) throw new UnauthorizedException("Sesi login diperlukan. Silakan masuk kembali.");
       if (!EDITORIAL.includes(user.role)) throw new UnauthorizedException("Role tidak memiliki akses.");
     }
     const [rows, total] = await Promise.all([

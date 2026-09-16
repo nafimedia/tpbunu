@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AdminPage } from "./AdminPage";
-const { api } = vi.hoisted(() => ({
+const { api, setOnUnauthorized } = vi.hoisted(() => ({
   api: {
     currentUser: vi.fn(),
     dashboardSummary: vi.fn(),
@@ -10,9 +10,10 @@ const { api } = vi.hoisted(() => ({
     getAdminPages: vi.fn(),
     getAdminPage: vi.fn(),
   },
+  setOnUnauthorized: vi.fn(),
 }));
 
-vi.mock("../lib/api", () => ({ api }));
+vi.mock("../lib/api", () => ({ api, setOnUnauthorized }));
 
 beforeEach(() => {
   vi.clearAllMocks();

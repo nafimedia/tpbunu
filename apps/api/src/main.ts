@@ -19,12 +19,12 @@ async function bootstrap() {
   const importJwt = new JwtService({ secret: config.jwtAccessSecret });
   app.use("/v1/admin/content/import", (req: any, res: any, next: () => void) => {
     const token = String(req.headers?.authorization ?? "").replace(/^Bearer\s+/i, "");
-    if (!token) return res.status(401).json({ message: "Token akses diperlukan." });
+    if (!token) return res.status(401).json({ message: "Sesi login diperlukan. Silakan masuk kembali." });
     try {
       importJwt.verify(token);
       next();
     } catch {
-      res.status(401).json({ message: "Token akses tidak valid." });
+      res.status(401).json({ message: "Sesi login telah berakhir atau tidak valid. Silakan masuk kembali." });
     }
   });
   app.use("/v1/admin/content/import", express.json({ limit: "10mb" }));

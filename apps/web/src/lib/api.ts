@@ -11,7 +11,35 @@ const BASE = (
       : "http://localhost:3000/v1"
 ).replace(/\/$/, "");
 
-let accessToken: string | null = null;
+const STORAGE_KEY = "tpb_access_token";
+
+let accessToken: string | null = (() => {
+  try {
+    return typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+  } catch {
+    return null;
+  }
+})();
+
+function setAccessToken(token: string | null) {
+  accessToken = token;
+  try {
+    if (typeof localStorage !== "undefined") {
+      if (token) {
+        localStorage.setItem(STORAGE_KEY, token);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  } catch {
+    // ignore
+  }
+}
+
+let onUnauthorizedHandler: (() => void) | null = null;
+export const setOnUnauthorized = (fn: (() => void) | null) => {
+  onUnauthorizedHandler = fn;
+};
 
 const authHeaders = (): Record<string, string> => (accessToken ? { Authorization: `Bearer ${accessToken}` } : {});
 
@@ -47,7 +75,7 @@ async function refreshOnce(): Promise<boolean> {
     const r = await fetch(`${BASE}/auth/refresh`, { method: "POST", credentials: "include" });
     if (!r.ok) return false;
     const data = await parseResp<{ token: string }>(r);
-    accessToken = data.token;
+    setAccessToken(data.token);
     return true;
   } catch {
     return false;
@@ -64,10 +92,11 @@ async function request<T>(path: string, init: RequestInit = {}, retry = true): P
       ...(init.headers || {}),
     },
   });
-  if (r.status === 401 && retry && accessToken) {
+  if (r.status === 401 && retry) {
     const ok = await refreshOnce();
     if (ok) return request<T>(path, init, false);
-    accessToken = null;
+    setAccessToken(null);
+    onUnauthorizedHandler?.();
   }
   return parseResp<T>(r);
 }
@@ -91,34 +120,37 @@ export const api = {
 
   async login(email: string, password: string) {
     const d = await request<{ token: string; user: AdminUser }>(`/auth/login`, jsonInit({ email, password }));
-    accessToken = d.token;
+    setAccessToken(d.token);
     return d.user;
   },
 
   async bootstrap(name: string, email: string, password: string) {
     const d = await request<{ token: string; user: AdminUser }>(`/auth/bootstrap`, jsonInit({ name, email, password }));
-    accessToken = d.token;
+    setAccessToken(d.token);
     return d.user;
   },
 
   async logout() {
-    try { await request(`/auth/logout`, { method: "POST" }); } finally { accessToken = null; }
+    try { await request(`/auth/logout`, { method: "POST" }); } finally { setAccessToken(null); }
   },
 
   async logoutAll() {
-    try { await request(`/auth/logout-all`, { method: "POST" }); } finally { accessToken = null; }
+    try { await request(`/auth/logout-all`, { method: "POST" }); } finally { setAccessToken(null); }
   },
 
   async currentUser(): Promise<AdminUser | null> {
     if (!accessToken) {
       const ok = await refreshOnce();
-      if (!ok) return null;
+      if (!ok) {
+        setAccessToken(null);
+        return null;
+      }
     }
     try {
       const d = await request<{ user: AdminUser }>(`/auth/me`);
       return d.user;
     } catch {
-      accessToken = null;
+      setAccessToken(null);
       return null;
     }
   },
